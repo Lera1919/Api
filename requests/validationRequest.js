@@ -1,6 +1,44 @@
 const { body } = require('express-validator');
 const { validationResult, checkSchema } = require('express-validator');
-exports.request = async (req, res, next) => {
+
+/**
+* @swagger
+* components:
+*   schemas:
+*     registerRequest:
+*       type: object
+*       required: 
+*         - firstName
+*         - lastName
+*         - email
+*         - password
+*       properties:
+*         firstName:
+*           type: string
+*           maxLength: 30
+*           description: Имя пользователя
+*         lastName:           
+*           type: string
+*           maxLength: 30
+*           description: Фамилия пользователя 
+*         email:           
+*           type: string
+*           maxLength: 100
+*           description: Имэил пользователя 
+*         password:           
+*           type: string
+*           minLength: 3
+*           maxLength: 8   
+*           description: Пароль пользователя     
+*       example:
+*         firstName: "Вася"          
+*         lastName: "Пупкин"
+*         email: "exampl@gmail.com"
+*         password: "qwerty"   
+* 
+*/
+
+exports.register = async (req, res, next) => {
     
     const result = await checkSchema({
         firstName: {

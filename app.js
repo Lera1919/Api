@@ -29,13 +29,15 @@ const options = {
             },
         ],
     },
-    apis: ["./routes/*.js", "./controllers/*.js"],
+    apis: ["./routes/*.js", "./controllers/*.js", "./requests/*.js", "./models/*.js"],
 };
-const specification = swaggerJsdoc(options);
+
 
 app.use(express.json());
-app.use('/v1/', router)
 
-app.use( '/v1/documentation', swaggerUi.serve, swaggerUi.setup(specification) );
+const specification = swaggerJsdoc(options);
+
+app.use('/v1/', router)
+app.use( '/v1/doc', swaggerUi.serve, swaggerUi.setup(specification) );
 
 module.exports = app;

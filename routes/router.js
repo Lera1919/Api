@@ -7,36 +7,41 @@ const validationRequest = require('../requests/validationRequest');
 const router = express.Router()
 
 router.get("/user", auth, userController.index);
+
 router.post("/logout", auth, userController.create);
 
 
 /**
  * @swagger
  * tags:
- *   name: User Authentification
- *   description: User Authentification managing API
+ *   name: Auth
+ *   description: Это роуты для регистрации и логина
  * /register:
  *   post:
- *     summary: Create a new user account
- *     tags: [User Authentification]
+ *     summary: Создание пользователя
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Register'
+ *             $ref: '#/components/schemas/registerRequest'
  *     responses:
  *       201:
- *         description: The created user account.
+ *         description: Пользователь успешно создан
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Register'
+ *               $ref: '#/components/schemas/userModel'
+ *       409:
+ *         description: Такой пользователь уже создан
  *       500:
- *         description: Some server error
+ *         description: Зови на помощь
  *
  */
-router.post("/register", validationRequest.request, userController.create);
+router.post("/register", validationRequest.register, userController.create);
+router.get("/confirm", userController.confirm);
+
 router.post("/login", authController.login);
 
 router.get("/", userController.index);
