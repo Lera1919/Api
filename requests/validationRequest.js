@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 const { validationResult, checkSchema } = require('express-validator');
+const jwt = require("jsonwebtoken");
 
 /**
 * @swagger
@@ -111,4 +112,17 @@ exports.register = async (req, res, next) => {
     if (errors.isEmpty()) return next();
 
     res.status(400).json({ errors: errors.array() });
+}
+
+exports.confirm = async (req, res, next) => {
+    try {
+
+        req.user = jwt.verify(req.query.tkey, process.env.TOKEN_KEY);   
+
+    } catch (err) {
+
+        return res.status(401).send("Invalid token");
+    }
+
+    return next();
 }
