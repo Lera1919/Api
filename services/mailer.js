@@ -1,24 +1,18 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
+    service: process.env.MAIL_SERVICE,
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
-    secure: false, // true for 465, false for other ports
+    secure: false,
     auth: {
-      user: process.env.MAIL, 
-      pass: process.env.MAIL_PASSWORD, 
+        user: process.env.MAIL,
+        pass: process.env.MAIL_PASSWORD,
     },
 });
 
-const send = async (options, callback) => {
-    try {
-        const info = await transporter.sendMail(options);
-        callback(info);
-    } catch (err) {
-        
-        console.log(err);
-    }
-}
+const send = (options) => {
+    return transporter.sendMail(options)
+};
 
 module.exports = send;
-

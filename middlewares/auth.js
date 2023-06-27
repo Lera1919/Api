@@ -1,19 +1,45 @@
 const jwt = require("jsonwebtoken");
+const BlackList = require("../models").BlackList;
 
-const verifyToken = (req, res, next) => {
-  const token =
-    req.body.token || req.query.token || req.headers["x-access-token"];
+/**
+* @swagger
+* components:
+*   schemas:
+*     verifyTokenFailed:
+*       type: object
+*       properties:
+*         message:
+*           type: string
+*           description: Токен не действителен
+*       example:
+*         message: "Токен не действителен"
+*     verifyTokenExist:
+*       type: object
+*       properties:
+*         message:
+*           type: string
+*           description: Токен не найден
+*       example:
+*         message: "Токен не найден"
+*/
 
-  if (!token) {
-    return res.status(403).send("A token is required for authentication");
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-    req.user = decoded;
-  } catch (err) {
-    return res.status(401).send("Invalid Token");
-  }
-  return next();
+const verifyToken = async (req, res, next) => {
+    const token = req.body.token || req.query.token || req.headers["authorization"];
+
+    if (!token) {
+        return res.status(403).send("Токен обязателен для авторизации");
+    }
+    try {
+        req.body = jwt.verify(token, process.env.TOKEN_KEY);
+
+        const ban = await BlackList.findOne({ where: {id: req.body.tokenId} });
+
+        if (ban) throw new Error();
+
+    } catch (err) {
+        return res.status(401).send("Не верный токен");
+    }
+    return next();
 };
 
 module.exports = verifyToken;

@@ -1,65 +1,61 @@
 'use strict';
 const { Model } = require('sequelize');
-
 /**
-* @swagger
-*  components:
-*    schemas:
-*      userModel:
-*        type: object
-*        properties:
-*          id:
-*            type: integer
-*            description: ID пользователя
-*          firstName:
-*            type: string
-*            maxLength: 30
-*            description: Имя пользователя
-*          lastName:
-*            type: string
-*            maxLength: 30
-*            description: Фамилия пользователя
-*          email:
-*            type: string
-*            maxLength: 100
-*            description: Адрес почты
-*          password:
-*            type: string
-*            minLength: 3
-*            maxLength: 8
-*            description: Пароль пользователя
-*          token:
-*            type: string
-*            maxLength: 512
-*            description: Токен доступа  
-*          avatar:
-*            type: string
-*            maxLength: 255
-*            description: URL аватарки пользователя 
-*          status:
-*            type: boolean
-*            description: Статус пользователя 
-*          createdAt:
-*            type: string
-*            description: Время создания пользователя
-*          updatedAt:
-*            type: string
-*            description: Время обновления данных пользователя      
-*        example:
-*          id: 56
-*          firstName: "Jone"
-*          lastName: "Dou"
-*          email: "example@mail.com"
-*          password: "12345"   
-*          token: "nejkwuhfrio48729"
-*          avatar: "https://instagram.lern.dev/avatar.jpg"
-*          status: "true"
-*          createdAt: "2023-06-04"
-*          updatedAt: "2023-06-06"
- 
- 
-*/
-
+ * @swagger
+ * components:
+ *   schemas:
+ *     userModel:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: Id пользователя
+ *         firstName:
+ *           type: string
+ *           maxLength: 30
+ *           description: Имя пользователя
+ *         lastName:
+ *           type: string
+ *           maxLength: 30
+ *           description: Фамилия пользователя
+ *         email:
+ *           type: string
+ *           maxLength: 100
+ *           description: Адрес почты
+ *         password:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 8
+ *           description: Пароль пользователя
+ *         token:
+ *           type: string
+ *           maxLength: 512
+ *           description: Токен доступа
+ *         avatar:
+ *           type: string
+ *           maxLength: 255
+ *           description: URL аватарки пользователя
+ *         status:
+ *           type: boolean
+ *           description: Статус записи пользователя
+ *         createdAt:
+ *           type: string
+ *           description: Дата создания записи
+ *         updatedAt:
+ *           type: string
+ *           description: Дата изменеия записи
+ *       example:
+ *         id: 56
+ *         firstName: "Jone"
+ *         lastName: "Dou"
+ *         email: "example@mail.com"
+ *         password: "12345"
+ *         token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiZW1haWwiOiJwb2to"
+ *         avatar: "https://example.com/image.jpg"
+ *         status: true
+ *         updatedAt: "2023-06-18T16:22:32.561Z"
+ *         createdAt: "2023-06-18T16:22:32.422Z"
+ */
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {
         /**
@@ -106,14 +102,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
         },
-        verifyEmail: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        }
     }, {
         sequelize,
         modelName: 'User',
         timestamps: true,
+        associate: (models) => {
+            User.hasMany(models.BlackList, {foreignKey: 'userId'})
+        }
     });
     
     return User;

@@ -42,9 +42,7 @@ module.exports = (data) => {
                 <h1>Здравствуйте, ${data.userName}</h1>
               </div>
               <div class="email-body">
-                <p>
-                <a href="https://instagram.lern.dev/api/v1/confirm?tkey=${data.token}"> Для завершения регистрации перейдите по ссылке </a>
-                </p>
+                <p><a href="https://instagram.lern.dev/api/v1/confirm?tkey=${data.token}">Для завершения регистрации, пожалуйста пройдите по ссылке</a></p>
               </div>
               <div class="email-footer">
                 <p>Copyright © 2006–2023 ООО "Instagram Украина", 0-800-307-307</p>
