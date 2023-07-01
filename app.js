@@ -29,6 +29,12 @@ const options = {
                     type: 'http',
                     scheme: 'bearer',
                     bearerFormat: 'JWT'
+                },
+
+                apiKeyAuth: {
+                    type: 'apiKey',
+                    in: 'header',
+                    name: 'authorization'
                 }
             }
         },

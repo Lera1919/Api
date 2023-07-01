@@ -218,7 +218,7 @@ router.post("/login", validationRequest.login, authController.login);
 *     summary: Выход пользователя из учётки
 *     tags: [Auth]
 *     security:
-*       - bearerAuth: []
+*       - apiKeyAuth: []
 *     description: В Header autorization должен быть указан токен
 *     responses:
 *       200:
@@ -247,6 +247,137 @@ router.post("/login", validationRequest.login, authController.login);
 *               $ref: '#/components/schemas/verifyTokenExist'
 */
 router.get("/logout", auth, authController.logout);
+
+/**
+* @swagger
+* /forgot:
+*   post: 
+*     summary: Восстановление забытого пароля
+*     tags: [Auth]
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/forgotRequest'
+*     responses:
+*       200:
+*         description: Письмо для смены пароля отправлено.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Письмо отправлено*               
+*       400:
+*         description: Ошибка валидации данных.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 errors:
+*                   type: array
+*                   items:
+*                     type: object
+*                     properties:
+*                       type:
+*                         type: string
+*                         description: Тип поля
+*                       value:
+*                         type: string
+*                         description: Значение поля
+*                       msg:
+*                         type: string
+*                         description: Текст ошибки
+*                       path:
+*                         type: string
+*                         description: Имя поля с ошибкой
+*                       location:
+*                         type: string
+*                         description: Место, где произошла ошибка
+*                     example:
+*                       type: "field"
+*                       value: "example@email.com"
+*                       msg: "Адрес эл почты некорректный"
+*                       path: "email"
+*                       location: "body"
+*       401:
+*         description: Пользователь с таким почтовым адресом не найден.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Текст ошибки
+*               example:
+*                 message: "Пользователь с таким почтовым адресом не найден"
+*       418:
+*         description: Ошибка отправки письма.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Текст ошибки
+*               example:
+*                 message: "Ошибка отправки письма"
+*       500:
+*         description: Что-то пошло не так.. гы гы
+*
+*/
+router.post("/forgot", validationRequest.forgot, authController.forgot);
+
+/**
+* @swagger
+* /changepassword:
+*   post:
+*     summary: Завершение процудуры смены пароля
+*     tags: [Auth]
+*     security:
+*       - apiKeyAuth: []
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/changePasswordRequest'
+*     responses:                   
+*       201:
+*         description: Успешная смена пароля
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Пароль изменен
+*               example:
+*                 message: "Пароль изменен"
+*       401:
+*         description: Токен не действителен
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/verifyTokenFailed'
+*       403:
+*         description: Токен обязателен
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/verifyTokenExist'
+*       500:
+*         description: Что-то пошло не так.. гы гы
+*/
+router.post("/changepassword", auth, validationRequest.changepassword, authController.changepassword);
+
 
 // router.get("/user", auth, userController.index);
 

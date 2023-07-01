@@ -5,13 +5,23 @@ module.exports = {
     await queryInterface.createTable('BlackLists', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID
       },
-      name: {
-        type: Sequelize.STRING
+      userId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'Users'
+          },
+            key: 'id'
+        },
       },
+      timeLive: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },  
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -19,7 +29,7 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      }   
     });
   },
   async down(queryInterface, Sequelize) {

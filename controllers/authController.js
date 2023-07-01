@@ -7,6 +7,8 @@ const {v4: uuidv4} = require('uuid');
 const mailConfirmTemplate = require("../templates/mailConfirmTemplate");
 const sendMail = require("../services/mailer");
 const User = require("../models").User;
+const BlackList = require("../models").BlackList;
+const mailForgotTemplate = require("../templates/mailForgotTemplate");
 
 exports.register = async (req, res) => {
 
@@ -112,11 +114,93 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
 
-    
+    const {id, tokenId, exp} = req.body.user;
+
+    const ban = await BlackList.create({
+        id: tokenId,
+        userId: id,
+        timeLive: exp
+
+    })
+    return res.status(200).json({"message":"Выполнено успешно"})
+   
 
     
 
 };
+
+exports.forgot = async (req, res) => {
+
+    const {email} = req.body;
+
+    const user = await User.findOne({ 
+        where: { email },
+        attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'status']
+     });
+
+     if (!user) return res.status(401).json({"message": "Пользователь с таким почтовым адресом не найден"});
+
+     const tokenId = uuidv4();
+
+     const token = jwt.sign(
+        {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            avatar: user.avatar,
+            tokenId
+        },
+        process.env.TOKEN_KEY,
+        {
+            expiresIn: "600s",
+        },
+     );
+
+     const data = {
+        userName: user.firstName + ' ' + user.lastName,
+        token: token
+     };
+
+     const options = {
+        from: `TESTING <${process.env.MAIL}>`,
+        to: email,
+        subject: "Восстановление пароля в приложении Instagram",
+        text: `Скопируйте адрес, вставьте в адресную строку Вашего браузера и нажмите ввод - https://instagram.lern.dev/api/v1/changepassword?tkey=${data.token}`,
+        html: mailForgotTemplate(data),
+     };
+
+    try {
+        const resultSentMail = await sendMail(options);
+    } catch (err) {
+        return res.status(418).json({"message": "Ошибка отправки письма"});
+    }
+
+    return res.status(200).json({"message": "Письмо отправлено"});
+
+};
+
+
+
+
+exports.changepassword = async (req, res) => {
+    let {password} = req.body;
+
+    const {id, tokenId, exp} = req.body.user;
+
+    const ban = await BlackList.create({
+        id: tokenId,
+        userId: id,
+        timeLive: exp
+    });
+
+    password = await bcrypt.hash(password, 5);
+
+    await User.update({password}, {where: {id}});
+    return res.status(201).json({"message": "Пароль изменен"});
+
+};
+
 
 // exports.update = async (req, res) => {
 //     return res.send("NOT IMPLEMENTED: Site Home Page");

@@ -117,7 +117,7 @@ exports.confirm = async (req, res, next) => {
     try {
         req.body = await jwt.verify(req.query.tkey, process.env.TOKEN_KEY);
     } catch (err) {
-        return res.status(401).json({"message": "Не верный токен"});
+        return res.status(401).json({ "message": "Не верный токен" });
     }
 
     return next();
@@ -188,3 +188,96 @@ exports.login = async (req, res, next) => {
 
     return res.status(400).json({ errors: errors.array() });
 }
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     forgotRequest:
+ *       type: object
+ *       required:
+ *         - email        
+ *       properties:
+ *         email:
+ *           type: string
+ *           maxLength: 100
+ *           description: Адрес почты       
+ *       example:
+ *         email: "example@mail.com"     
+ */
+exports.forgot = async (req, res, next) => {
+
+    const schemaObject = checkSchema({
+        email: {
+            exists: {
+                errorMessage: 'Отсутствует параметр',
+                bail: true
+            },
+            trim: true,
+            toLowerCase: true,
+            notEmpty: {
+                errorMessage: 'Поле не должно быть пустым',
+            },
+            isLength: {
+                options: { max: 100 },
+                errorMessage: 'Адрес электронной почты не должен превышать 100 символов',
+            },
+            isEmail: {
+                errorMessage: 'Адрес электронной почты некорректный',
+            },
+        },
+    });
+
+    await schemaObject.run(req);
+
+    const errors = validationResult(req);
+
+    if (errors.isEmpty()) return next();
+
+    return res.status(400).json({ errors: errors.array() });
+}
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     changePasswordRequest:
+ *       type: object
+ *       required:
+ *         - password      
+ *       properties:
+ *         password:
+ *           type: string
+ *           mixLength: 3
+ *           maxLength: 8
+ *           description: Пароль пользователя
+ *       example:
+ *         password: "12345"         
+ */
+exports.changepassword = async (req, res, next) => {
+
+    const schemaObject = checkSchema({
+        password: {
+            exists: {
+                errorMessage: 'Поле должно существовать',
+                bail: true
+            },
+            isLength: {
+                options: {min: 5, max: 8 },
+                errorMessage: 'Пароль должен быть не менее 5 и не более 8 символов',
+            },
+        },
+    });
+
+    await schemaObject.run(req);
+
+    const errors = validationResult(req);
+
+    if (errors.isEmpty()) return next();
+
+    return res.status(400).json({ errors: errors.array() });
+}
+
+
+
+

@@ -30,14 +30,14 @@ const verifyToken = async (req, res, next) => {
         return res.status(403).send("Токен обязателен для авторизации");
     }
     try {
-        req.body = jwt.verify(token, process.env.TOKEN_KEY);
+        req.body.user = jwt.verify(token, process.env.TOKEN_KEY);
 
-        const ban = await BlackList.findOne({ where: {id: req.body.tokenId} });
+        const ban = await BlackList.findOne({ where: {id: req.body.user.tokenId} });
 
-        if (ban) throw new Error();
+        if (ban) throw new Error('Находится в бан листе');
 
     } catch (err) {
-        return res.status(401).send("Не верный токен");
+        return res.status(401).send("Неверный токен");
     }
     return next();
 };

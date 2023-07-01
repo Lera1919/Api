@@ -23,9 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.INTEGER,
       references: {
-        model: 'User',
-        key: 'id'
-      }
+        model: {
+          tableName: 'Users'
+        },
+          key: 'id'
+      },
     },
     timeLive: {
       type: DataTypes.INTEGER,
@@ -34,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'BlackList',
+    timestamps: true,
     associate: (models) => {
       BlackList.belongsTo(models.User)
     }
