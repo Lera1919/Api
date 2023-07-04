@@ -114,7 +114,7 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
 
-    const {id, tokenId, exp} = req.body.user;
+    const {id, tokenId, exp} = req.user;
 
     const ban = await BlackList.create({
         id: tokenId,
@@ -186,7 +186,7 @@ exports.forgot = async (req, res) => {
 exports.changepassword = async (req, res) => {
     let {password} = req.body;
 
-    const {id, tokenId, exp} = req.body.user;
+    const {id, tokenId, exp} = req.user;
 
     const ban = await BlackList.create({
         id: tokenId,

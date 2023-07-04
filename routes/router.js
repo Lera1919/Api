@@ -1,8 +1,10 @@
 const express = require('express')
 const authController = require('../controllers/authController')
+const userController = require('../controllers/userController')
 const validationRequest = require('../middlewares/validationRequest');
 const hasUser = require('../middlewares/hasUser')
 const auth = require("../middlewares/auth");
+const uploadImage = require('../middlewares/uploadImage');
 
 const router = express.Router()
 
@@ -377,6 +379,8 @@ router.post("/forgot", validationRequest.forgot, authController.forgot);
 *         description: Что-то пошло не так.. гы гы
 */
 router.post("/changepassword", auth, validationRequest.changepassword, authController.changepassword);
+
+router.post("/avatar", auth, uploadImage.single("avatar"), userController.avatar)
 
 
 // router.get("/user", auth, userController.index);
