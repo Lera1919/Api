@@ -380,7 +380,53 @@ router.post("/forgot", validationRequest.forgot, authController.forgot);
 */
 router.post("/changepassword", auth, validationRequest.changepassword, authController.changepassword);
 
-router.post("/avatar", auth, uploadImage.single("avatar"), userController.avatar)
+/**
+* @swagger
+* /user/update:
+*   post:
+*     summary: Работа с данными пользователями
+*     tags: [User]
+*     security:
+*       - apiKeyAuth: []
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/updateRequest'
+*     responses:                   
+*       200:
+*         description: Успешное обновление данных
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Данные обновлены
+*               example:
+*                 message: "Данные обновлены"
+*       401:
+*         description: Токен не действителен
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/verifyTokenFailed'
+*       403:
+*         description: Токен обязателен
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/verifyTokenExist'
+*       500:
+*         description: Что-то пошло не так.. гы гы
+*/
+router.post("/user/update", auth, validationRequest.update, userController.update);
+
+router.post("/avatar", auth, uploadImage.single("avatar"), userController.avatar);
+
+router.get("/profile", auth, userController.profile);
 
 
 // router.get("/user", auth, userController.index);

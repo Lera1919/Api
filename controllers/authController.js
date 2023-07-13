@@ -2,11 +2,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const mailConfirmTemplate = require("../templates/mailConfirmTemplate");
 const sendMail = require("../services/mailer");
 const User = require("../models").User;
+const Media = require("../models").Media;
 const BlackList = require("../models").BlackList;
 const mailForgotTemplate = require("../templates/mailForgotTemplate");
 
@@ -88,13 +89,26 @@ exports.login = async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
 
         const tokenId = uuidv4();
+
+        const avatar = await Media.findOne({
+            where: {
+                model: 'User',
+                modelId: user.id,
+                fieldName: 'avatar'
+            }
+        })
+
+        const pathToAvatar = avatar ? `https://instagram.lern.dev/storage/${avatar.dataValues.path}` : '';
+
+
+
         const token = jwt.sign(
             {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                avatar: user.avatar,
+                avatar: pathToAvatar,
                 tokenId
             },
             process.env.TOKEN_KEY,
@@ -102,7 +116,9 @@ exports.login = async (req, res) => {
                 expiresIn: "60d",
             }
         );
+        
         user.token = token;
+        user.avatar = pathToAvatar;
 
         return res.status(200).json(user);
     }
@@ -114,7 +130,7 @@ exports.login = async (req, res) => {
 
 exports.logout = async (req, res) => {
 
-    const {id, tokenId, exp} = req.user;
+    const { id, tokenId, exp } = req.user;
 
     const ban = await BlackList.create({
         id: tokenId,
@@ -122,27 +138,27 @@ exports.logout = async (req, res) => {
         timeLive: exp
 
     })
-    return res.status(200).json({"message":"Выполнено успешно"})
-   
+    return res.status(200).json({ "message": "Выполнено успешно" })
 
-    
+
+
 
 };
 
 exports.forgot = async (req, res) => {
 
-    const {email} = req.body;
+    const { email } = req.body;
 
-    const user = await User.findOne({ 
+    const user = await User.findOne({
         where: { email },
         attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'status']
-     });
+    });
 
-     if (!user) return res.status(401).json({"message": "Пользователь с таким почтовым адресом не найден"});
+    if (!user) return res.status(401).json({ "message": "Пользователь с таким почтовым адресом не найден" });
 
-     const tokenId = uuidv4();
+    const tokenId = uuidv4();
 
-     const token = jwt.sign(
+    const token = jwt.sign(
         {
             id: user.id,
             firstName: user.firstName,
@@ -155,28 +171,28 @@ exports.forgot = async (req, res) => {
         {
             expiresIn: "600s",
         },
-     );
+    );
 
-     const data = {
+    const data = {
         userName: user.firstName + ' ' + user.lastName,
         token: token
-     };
+    };
 
-     const options = {
+    const options = {
         from: `TESTING <${process.env.MAIL}>`,
         to: email,
         subject: "Восстановление пароля в приложении Instagram",
         text: `Скопируйте адрес, вставьте в адресную строку Вашего браузера и нажмите ввод - https://instagram.lern.dev/api/v1/changepassword?tkey=${data.token}`,
         html: mailForgotTemplate(data),
-     };
+    };
 
     try {
         const resultSentMail = await sendMail(options);
     } catch (err) {
-        return res.status(418).json({"message": "Ошибка отправки письма"});
+        return res.status(418).json({ "message": "Ошибка отправки письма" });
     }
 
-    return res.status(200).json({"message": "Письмо отправлено"});
+    return res.status(200).json({ "message": "Письмо отправлено" });
 
 };
 
@@ -184,9 +200,9 @@ exports.forgot = async (req, res) => {
 
 
 exports.changepassword = async (req, res) => {
-    let {password} = req.body;
+    let { password } = req.body;
 
-    const {id, tokenId, exp} = req.user;
+    const { id, tokenId, exp } = req.user;
 
     const ban = await BlackList.create({
         id: tokenId,
@@ -196,8 +212,8 @@ exports.changepassword = async (req, res) => {
 
     password = await bcrypt.hash(password, 5);
 
-    await User.update({password}, {where: {id}});
-    return res.status(201).json({"message": "Пароль изменен"});
+    await User.update({ password }, { where: { id } });
+    return res.status(201).json({ "message": "Пароль изменен" });
 
 };
 

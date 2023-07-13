@@ -32,10 +32,27 @@ const s3Storage = multerS3({
     },
 });
 
+const sanitizeFile = (file, cb) => {
+
+    const fileExts = [".png", ".jpg", ".jpeg", ".gif"];
+
+    const isAllowedExt = fileExts.includes(
+        path.extname(file.originalname.toLowerCase())
+    );
+
+    const isAllowedMimeType = file.mimetype.startsWith("image/");
+
+    if (isAllowedExt && isAllowedMimeType) {
+        return cb(null, true);
+    } else {
+        cb("Error: Запрещенный тип файла!");
+    }
+};
+
 const uploadImage = multer({
     storage: s3Storage,
     fileFilter: (req, file, callback) => {
-        return callback(null, true);
+        sanitizeFile(file, callback);
     },
     limits: {
         fileSize: 1024 * 1024 * 2

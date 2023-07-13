@@ -278,6 +278,181 @@ exports.changepassword = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
 }
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     updateRequest:
+ *       type: object
+ *       required:
+ *         - firstName
+ *         - lastName         
+ *       properties:
+ *         firstName:
+ *           type: string
+ *           maxLength: 30
+ *           description: Имя пользователя
+ *         lastName:
+ *           type: string
+ *           maxLength: 30
+ *           description: Фамилия пользователя *         
+ *         password:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 8
+ *           description: Старый пароль пользователя
+ *         newPassword:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 8
+ *           description: Новый пароль пользователя
+ *         phone:
+ *           type: string
+ *           minLength: 10
+ *           maxLength: 15
+ *           description: Телефон пользователя в формате +xxxxxxxxxxxx
+ *         description:
+ *           type: string
+ *           maxLength: 255
+ *           description: Описание пользователя
+ *         latitude:
+ *           type: number
+ *           min: -90
+ *           max: 90
+ *           description: Широта местоположения в градусах от -90 до 90
+ *         longitude:
+ *           type: number
+ *           min: -180
+ *           max: 180
+ *           description: Долгота местоположения в градусах от -180 до 180
+ *         commercial:
+ *           type: boolean
+ *           description: Флаг коммерческой учетной записи  
+ *       example:
+ *         firstName: "Jone"
+ *         lastName: "Dou"
+ *         newPassword: "12345"
+ *         password: "11111"
+ *         phone: "+3806776666666"
+ *         description: "Bla bla bla"
+ *         latitude: "12.4567"
+ *         longitude: "10.4321"
+ *         commercial: "true"
+ */
+exports.update = async (req, res, next) => {
+
+    const schemaObject = checkSchema({
+        firstName: {                      
+            exists: {
+                errorMessage: 'Отсутствует параметр',                
+                bail: true
+            },
+            trim: true,
+            escape: true,
+            notEmpty: {
+                errorMessage: 'Поле не должно быть пустым',
+                bail: true
+            },
+            isLength: {
+                options: { max: 30 },
+                errorMessage: 'Имя не должно быть больше 30 символов',
+            }
+
+        },
+        lastName: {
+            exists: {
+                errorMessage: 'Отсутствует параметр',
+                bail: true
+            },
+            trim: true,
+            escape: true,
+            notEmpty: {
+                errorMessage: 'Поле не должно быть пустым',
+                bail: true
+            },
+            isLength: {
+                options: { max: 30 },
+                errorMessage: 'Имя не должно быть больше 30 символов',
+            }
+        },
+        password: {
+            optional: {
+                options: { checkFalsy: true}
+            },            
+            isLength: {
+                options: { min: 5, max: 8 },
+                errorMessage: 'Пароль должен быть не меньше 5 и не больше 8 символов',
+            }
+        },
+        newPassword: {
+            optional: {
+                options: { checkFalsy: true}
+            },          
+            isLength: {
+                options: { min: 5, max: 8 },
+                errorMessage: 'Пароль должен быть не меньше 5 и не больше 8 символов',
+            }
+        },
+        phone: {    
+            optional: {
+                options: { checkFalsy: true}
+            },                       
+            isLength: {
+                options: { min: 10, max: 15 },
+                errorMessage: 'Телефон должен быть не меньше 10 и не больше 15 символов',
+            },
+            matches: {
+                options: /^\+\d{10,15}$/i,
+                errorMessage: 'Телефон должен быть в формате +ХХХХХХХХХХХХ',
+            }
+        },
+        description: {
+            optional: {
+                options: { checkFalsy: true}
+            },          
+            isLength: {
+                options: { max: 255 },
+                errorMessage: 'Не больше 255 символов',          
+            },
+        },
+        latitude: {
+            optional: {
+                options: { checkFalsy: true}
+            }, 
+            isFloat: {
+                options: { min: -90, max: 90 },
+                errorMessage: 'В пределах -90.0000:90.0000',  
+            }
+        },
+        longitude: {
+            optional: {
+                options: { checkFalsy: true}
+            }, 
+            isFloat: {
+                options: { min: -180, max: 180 },
+                errorMessage: 'В пределах -180.0000:180.0000',  
+            }
+        },
+        commercial: {
+            optional: {
+                options: { checkFalsy: true}
+            },       
+            isBoolean: {
+                errorMessage: 'Должен быть true или false'   
+            },    
+        },
+    });
+
+    await schemaObject.run(req);
+
+    const errors = validationResult(req);
+
+    if (errors.isEmpty()) return next();
+
+    return res.status(400).json({ errors: errors.array() });
+    
+}
+
 
 
 
