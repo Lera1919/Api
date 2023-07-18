@@ -422,7 +422,10 @@ exports.update = async (req, res, next) => {
             isFloat: {
                 options: { min: -90, max: 90 },
                 errorMessage: 'В пределах -90.0000:90.0000',  
-            }
+            },
+            isNumeric: {
+                errorMessage: 'Должно быть числом', 
+            },
         },
         longitude: {
             optional: {
@@ -431,7 +434,10 @@ exports.update = async (req, res, next) => {
             isFloat: {
                 options: { min: -180, max: 180 },
                 errorMessage: 'В пределах -180.0000:180.0000',  
-            }
+            },
+            isNumeric: {
+                errorMessage: 'Должно быть числом', 
+            },  
         },
         commercial: {
             optional: {

@@ -62,11 +62,7 @@ exports.confirm = async (req, res) => {
     const tokenId = uuidv4();
     const token = jwt.sign(
         {
-            id: user.id,
-            firstName,
-            lastName,
-            email,
-            avatar: user.avatar,
+            userId: user.id,  
             tokenId
         },
         process.env.TOKEN_KEY,
@@ -90,25 +86,21 @@ exports.login = async (req, res) => {
 
         const tokenId = uuidv4();
 
-        const avatar = await Media.findOne({
-            where: {
-                model: 'User',
-                modelId: user.id,
-                fieldName: 'avatar'
-            }
-        })
+        // const avatar = await Media.findOne({
+        //     where: {
+        //         model: 'User',
+        //         modelId: user.id,
+        //         fieldName: 'avatar'
+        //     }
+        // })
 
-        const pathToAvatar = avatar ? `https://instagram.lern.dev/storage/${avatar.dataValues.path}` : '';
+        // const pathToAvatar = avatar ? `https://instagram.lern.dev/storage/${avatar.dataValues.path}` : '';
 
 
 
         const token = jwt.sign(
             {
-                id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                avatar: pathToAvatar,
+                userId: user.id,               
                 tokenId
             },
             process.env.TOKEN_KEY,
@@ -118,7 +110,7 @@ exports.login = async (req, res) => {
         );
         
         user.token = token;
-        user.avatar = pathToAvatar;
+        // user.avatar = pathToAvatar;
 
         return res.status(200).json(user);
     }
@@ -151,7 +143,7 @@ exports.forgot = async (req, res) => {
 
     const user = await User.findOne({
         where: { email },
-        attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'status']
+        attributes: ['id']
     });
 
     if (!user) return res.status(401).json({ "message": "Пользователь с таким почтовым адресом не найден" });
@@ -160,11 +152,7 @@ exports.forgot = async (req, res) => {
 
     const token = jwt.sign(
         {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            avatar: user.avatar,
+            id: user.id,           
             tokenId
         },
         process.env.TOKEN_KEY,

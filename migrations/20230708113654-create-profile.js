@@ -11,6 +11,7 @@ module.exports = {
       },
       userId: {
         allowNull: false,
+        unique: true,        
         type: Sequelize.INTEGER,
         references: {
           model: {
@@ -20,8 +21,7 @@ module.exports = {
         },
       },  
       phone: {        
-        type: Sequelize.STRING(15),
-        unique: true,        
+        type: Sequelize.STRING(15),             
       },
       description: {        
         type: Sequelize.STRING

@@ -424,9 +424,11 @@ router.post("/changepassword", auth, validationRequest.changepassword, authContr
 */
 router.post("/user/update", auth, validationRequest.update, userController.update);
 
-router.post("/avatar", auth, uploadImage.single("avatar"), userController.avatar);
+router.post("/user/avatar", auth, uploadImage.single("avatar"), userController.avatar);
 
-router.get("/profile", auth, userController.profile);
+router.delete("/user/avatar", auth, userController.deleteAvatar);
+
+router.get("/user/profile", auth, userController.profile);
 
 
 // router.get("/user", auth, userController.index);
